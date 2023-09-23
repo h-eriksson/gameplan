@@ -143,7 +143,6 @@
     .then(blob => {
         const file = new File([blob], blob.name);
         document.getElementById('updated').innerHTML = ' ' + new Date(file.lastModified);
-        console.log(file.lastModified);
     });
 
 }()));
