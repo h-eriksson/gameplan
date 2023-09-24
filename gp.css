@@ -176,6 +176,7 @@ html, body {
 }
 
 #sidePanel {
+    display: none;
     box-sizing: border-box;
     position: absolute;
     right: 1rem;
@@ -206,4 +207,72 @@ input[type="time"]{
     outline: none;
     color: var(--text-color);
     padding-left: 1rem;
+}
+
+#settingsMenu {
+    position: absolute;
+    right: 1rem;
+    top: 4.9rem;
+    display: none;
+}
+
+#settingsMenu > ul {
+    list-style-type: none;
+    font-size: 1.5rem;
+    border: 1px var(--text-color) solid;
+    background-color: var(--subtle-color);
+    margin: 0;
+    padding: 1rem 0;
+    max-width: 20rem;
+    border-radius: 5px;
+}
+
+#settingsMenu > ul > li{
+    display: flex;
+    align-items: center;
+    padding: 0.3rem;
+}
+
+#settingsMenu > ul > li:hover{
+    display: flex;
+    align-items: center;
+    padding: 0.3rem;
+    background-color: var(--shadow-color);
+}
+
+input[type="checkbox"]{
+    box-sizing: border-box;
+    position: relative;
+    height: 1.5rem;
+    width: 3rem;
+    border: 1px var(--text-color) solid;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 3rem;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:not(:checked):before {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0.1rem;
+    border-radius: 50%;
+    content: ' ';
+    background-color: grey;
+    width: 1.2rem;
+    aspect-ratio: 1/1;
+    transition: left 0.25 ease-in-out;
+}
+
+input[type="checkbox"]:checked::before{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0.1rem;
+    border-radius: 50%;
+    content: ' ';
+    background-color: green;
+    width: 1.2rem;
+    aspect-ratio: 1/1;
 }

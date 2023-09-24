@@ -14,6 +14,8 @@
         settings.darkMode = localStorage.getItem('darkMode') || window.matchMedia("(prefers-color-scheme:light)").matches ? 'light' : 'dark';
         settings.lunchTime = localStorage.getItem('lunchTime') || '00:00';
         settings.lunchDuration = localStorage.getItem('lunchDuration') || 0;
+        settings.milestone = localStorage.getItem('milestone') || true;
+        settings.milestoneFrequency = localStorage.getItem('milestoneFrequency') || 30;
 
         dates.morningStart = setDate(settings.startTime.split(':')[0], settings.startTime.split(':')[1]);
         dates.morningEnd = setDate(settings.lunchTime.split(':')[0], settings.lunchTime.split(':')[1]);
@@ -26,8 +28,8 @@
         settings.afternoonGoalTasks = settings.goalTasks * settings.afternoonPercent;
         settings.morningGoalTime = ((settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60)) * settings.morningPercent;
         settings.afternoonGoalTime = ((settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60)) * settings.afternoonPercent;
-        settings.currentTime = ()=>{
-            let d = new Date();
+        settings.currentTime = (setTime)=>{
+            let d = setTime || new Date();
             let mPercent = 0;
             let aPercent = 0;
             if(d > dates.morningStart && d < dates.morningEnd){
@@ -42,8 +44,8 @@
             let ah = settings.afternoonGoalTime * aPercent;
             return Math.floor((mh + ah) / 3600) + 'h ' + Math.floor(((mh + ah) % 3600) / 60) + 'm';
         }
-        settings.currentTasks = ()=>{
-            let d = new Date();
+        settings.currentTasks = (setTime)=>{
+            let d = setTime || new Date();
             let mPercent = 0;
             let aPercent = 0;
             if(d > dates.morningStart && d < dates.morningEnd){
@@ -71,21 +73,60 @@
 
     updateSettings();
 
+    function setDarkMode(){
+        document.getElementsByTagName('body')[0].dataset.colorscheme = document.getElementsByTagName('body')[0].dataset.colorscheme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('darkMode', document.getElementsByTagName('body')[0].dataset.colorscheme);
+    }
+
+    document.getElementById('darkModeCheck').addEventListener('change', ev=>{
+        setDarkMode();
+    })
+
     //Getting and setting up darkMode.
     document.getElementsByTagName('body')[0].dataset.colorscheme = settings.darkMode; //Setting darkMode according to localStorage
     let darkModeIcon = document.querySelector('.icon-darkMode');
     ['click', 'keydown'].forEach(el=>{
         darkModeIcon.addEventListener(el, ev=>{
             if(!['Shift', 'Tab'].includes(ev.key)){
-                let darkMode = document.getElementsByTagName('body')[0].dataset.colorscheme;
-                document.getElementsByTagName('body')[0].dataset.colorscheme = darkMode === 'light' ? 'dark' : 'light';
-                localStorage.setItem('darkMode', document.getElementsByTagName('body')[0].dataset.colorscheme);
+                setDarkMode();
+                document.getElementById('darkModeCheck').checked = localStorage.getItem('darkMode') === 'light' ? false : true;
             }
         });
     })
 
+    let body = document.getElementsByTagName('body')[0];
+    ['click', 'keydown'].forEach(el=>{
+        body.addEventListener('click', ev=>{
+            document.getElementById('settingsMenu').style.display = 'none';
+        });
+    });
+
+    document.getElementById('settingsMenu').addEventListener('click', ev=>{
+        ev.stopPropagation();
+    })
+
+    let settingsIcon = document.querySelector('.icon-settings');
+    ['click', 'keydown'].forEach(el=>{
+        settingsIcon.addEventListener(el, ev=>{
+            if(!['Shift', 'Tab'].includes(ev.key)){
+                ev.stopPropagation();   
+                document.getElementById('settingsMenu').style.display = document.getElementById('settingsMenu').style.display === 'block' ? 'none' : 'block';
+                Array.from(document.getElementsByClassName('tooltip')).forEach(tt=>{
+                    tt.style.display = 'none';
+                });
+            }
+        })
+    });
+
+    document.getElementById('milestoneCheck').addEventListener('change', ev=>{
+        document.getElementById('sidePanel').style.display = document.getElementById('sidePanel').style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.getElementById('milestoneCheck').checked = settings.milestone;
+    document.getElementById('milestoneCheck').dispatchEvent(new Event('change'));
+
     //Updates all calculation if the inputs are changed.
-    let inputs = document.querySelectorAll('input');
+    let inputs = document.querySelectorAll('input[type="time"], input[type="number"]');
     inputs.forEach(el=>{ //iterating all the inputs
         el.value = settings[el.name]; //Setting all inputs to the stored value or "0"
         el.addEventListener('change', ev=>{
@@ -99,10 +140,11 @@
     let icons = document.querySelectorAll('.icon');
     icons.forEach(el=>{
         el.addEventListener('mouseover',ev=>{
-            ev.stopPropagation();
-            tooltipTimeOut = setTimeout(()=>{
-                el.parentElement.lastElementChild.style.display = 'block';
-            }, 500);
+            if(document.getElementById('settingsMenu').style.display !== 'block'){
+                tooltipTimeOut = setTimeout(()=>{
+                    el.parentElement.lastElementChild.style.display = 'block';
+                }, 500);
+            }
         });
         el.addEventListener('mouseout', ev=>{
             ev.stopPropagation();
@@ -114,12 +156,14 @@
     //helper-function. Finds the closest greater number evenly divisible by m.
     function closestNumber(n, m)
     {
-        return (n * m) > 0 ? (m * (parseInt(n / m) + 1)) : (m * (parseInt(n / m) - 1));
+        return (n * m) > 0 ? 
+            (m * (parseInt(n / m) + 1)) : 
+            (m * (parseInt(n / m) - 1));
     }
 
     //Starts the interval at an evenly divisible by 5 second time.
     setTimeout(()=>{
-        counterTimeOut = setInterval(updateCounter, 5000);
+        counterTimeOut = setInterval(updateCounter, 2500);
     }, Math.abs(new Date(new Date(new Date().getTime()).setSeconds(closestNumber(new Date(new Date().getTime()).getSeconds(), 5))) - new Date()));
 
     //Updates the output.
@@ -132,10 +176,27 @@
             }else{
                 document.getElementById('lunch').style.display = 'none';
             }
+            updateMilestone();
+        }
+    }
+
+    function updateMilestone(){
+        let d = new Date();
+        let minutesTo = closestNumber(d.getMinutes(), 30) === 30 ? 30 - d.getMinutes() : 60 - d.getMinutes();
+        let milestones = Array.from(document.getElementsByClassName('milestone'));
+        for(let t = 0; t <= 3; t++){
+            let nextT = new Date().setMinutes(new Date().getMinutes() + minutesTo + (30 * t));
+            let nextD = settings.currentTime(new Date(new Date().setMinutes(new Date().getMinutes() + minutesTo + (30 * t))));
+            let nextTask = settings.currentTasks(new Date(new Date().setMinutes(new Date().getMinutes() + minutesTo + (30 * t))));
+            milestones[t].innerHTML = new Date(nextT).getHours() + ':' + leadingZero(new Date(nextT).getMinutes()) + ' : ' + nextD + ' ' + nextTask;
         }
     }
 
     updateCounter();
+
+    function leadingZero(n){
+        return parseInt(n) > 10 ? n : '0' + n;
+    }
 
     //getting the last time this js file was saved.
     fetch("./gp.js")
