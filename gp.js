@@ -15,7 +15,7 @@
         settings.darkMode = localStorage.getItem('darkMode') || (window.matchMedia("(prefers-color-scheme:light)").matches ? 'light' : 'dark');
         settings.lunchTime = localStorage.getItem('lunchTime') || '00:00';
         settings.lunchDuration = localStorage.getItem('lunchDuration') || 0;
-        settings.milestone = localStorage.getItem('milestone') || true;
+        settings.milestone = localStorage.getItem('milestone') || "true";
         settings.milestoneFrequency = localStorage.getItem('milestoneFrequency') || 30;
 
         dates.morningStart = setDate(settings.startTime.split(':')[0], settings.startTime.split(':')[1]);
@@ -86,7 +86,8 @@
     })
 
     //Getting and setting up darkMode.
-    document.getElementsByTagName('body')[0].dataset.colorscheme = settings.darkMode; //Setting darkMode according to localStorage
+    document.getElementById('darkModeCheck').checked = localStorage.getItem('darkMode') === 'light' ? false : true;
+    document.getElementsByTagName('body')[0].dataset.colorscheme = localStorage.getItem('darkMode'); //Setting darkMode according to localStorage
     let darkModeIcon = document.querySelector('.icon-darkMode');
     ['click', 'keydown'].forEach(el=>{
         darkModeIcon.addEventListener(el, ev=>{
@@ -122,10 +123,12 @@
     });
 
     document.getElementById('milestoneCheck').addEventListener('change', ev=>{
-        document.getElementById('sidePanel').style.display = document.getElementById('sidePanel').style.display === 'block' ? 'none' : 'block';
+        localStorage.setItem('milestone', ev.target.checked === true ? 'true' : 'false');
+        settings.milestone = localStorage.getItem('milestone');
+        document.getElementById('sidePanel').style.display = localStorage.getItem('milestone') === 'false' ? 'none' : 'block';
     });
 
-    document.getElementById('milestoneCheck').checked = settings.milestone;
+    document.getElementById('milestoneCheck').checked = settings.milestone === 'true' ? true : false;
     document.getElementById('milestoneCheck').dispatchEvent(new Event('change'));
 
     //Updates all calculation if the inputs are changed.
