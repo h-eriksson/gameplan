@@ -6,12 +6,13 @@
     let counterTimeOut;
     let settings = {};
     let dates = {};
+
     function updateSettings(){
         settings.startTime = localStorage.getItem('startTime') || '00:00';
         settings.endTime = localStorage.getItem('endTime') || '00:00';
         settings.goalTime = localStorage.getItem('goalTime') || '00:00';
         settings.goalTasks = localStorage.getItem('goalTasks') || 0;
-        settings.darkMode = localStorage.getItem('darkMode') || window.matchMedia("(prefers-color-scheme:light)").matches ? 'light' : 'dark';
+        settings.darkMode = localStorage.getItem('darkMode') || (window.matchMedia("(prefers-color-scheme:light)").matches ? 'light' : 'dark');
         settings.lunchTime = localStorage.getItem('lunchTime') || '00:00';
         settings.lunchDuration = localStorage.getItem('lunchDuration') || 0;
         settings.milestone = localStorage.getItem('milestone') || true;
