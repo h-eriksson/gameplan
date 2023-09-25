@@ -29,6 +29,7 @@
         settings.morningGoalTime = ((settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60)) * settings.morningPercent;
         settings.afternoonGoalTime = ((settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60)) * settings.afternoonPercent;
         settings.currentTime = (setTime)=>{
+            if(setTime){setTime.setSeconds(0); setTime.setMilliseconds(1000)}
             let d = setTime || new Date();
             let mPercent = 0;
             let aPercent = 0;
@@ -45,6 +46,7 @@
             return Math.floor((mh + ah) / 3600) + 'h ' + Math.floor(((mh + ah) % 3600) / 60) + 'm';
         }
         settings.currentTasks = (setTime)=>{
+            if(setTime){setTime.setSeconds(0); setTime.setMilliseconds(1000)}
             let d = setTime || new Date();
             let mPercent = 0;
             let aPercent = 0;
