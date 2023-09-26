@@ -19,7 +19,11 @@
         settings.milestoneFrequency = localStorage.getItem('milestoneFrequency') || 30;
 
         dates.morningStart = setDate(settings.startTime.split(':')[0], settings.startTime.split(':')[1]);
-        dates.morningEnd = setDate(settings.lunchTime.split(':')[0], settings.lunchTime.split(':')[1]);
+        if(parseInt((settings.lunchTime.split(':')[0] * 60) + parseInt(settings.lunchTime.split(':')[1]) <= settings.endTime.split(':')[0] * 60) + parseInt(settings.endTime.split(':')[1])){
+            dates.morningEnd = setDate(settings.lunchTime.split(':')[0], settings.lunchTime.split(':')[1]);
+        }else{
+            dates.morningEnd = setDate(settings.endTime.split(':')[0], settings.endTime.split(':')[1]);
+        }
         dates.afternoonStart = setDate(settings.lunchTime.split(':')[0], parseInt(settings.lunchTime.split(':')[1]) + parseInt(settings.lunchDuration));
         dates.afternoonEnd = setDate(settings.endTime.split(':')[0], settings.endTime.split(':')[1]);
 
@@ -30,7 +34,7 @@
         settings.morningGoalTime = ((settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60)) * settings.morningPercent;
         settings.afternoonGoalTime = ((settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60)) * settings.afternoonPercent;
         settings.currentTime = (setTime)=>{
-            if(setTime){setTime.setSeconds(0); setTime.setMilliseconds(1000)}
+            if(setTime){setTime.setSeconds(0); setTime.setMilliseconds(0)}
             let d = setTime || new Date();
             let mPercent = 0;
             let aPercent = 0;
@@ -39,7 +43,7 @@
             }else{
                 mPercent = 1;
             }
-            if(d > dates.afternoonStart && d < dates.afternoonEnd){
+            if(d >= dates.afternoonStart && d <= dates.afternoonEnd){
                 aPercent = Math.abs(dates.afternoonStart - d) / Math.abs(dates.afternoonEnd - dates.afternoonStart);
             }
             let mh = settings.morningGoalTime * mPercent;
@@ -47,16 +51,16 @@
             return Math.floor((mh + ah) / 3600) + 'h ' + Math.floor(((mh + ah) % 3600) / 60) + 'm';
         }
         settings.currentTasks = (setTime)=>{
-            if(setTime){setTime.setSeconds(0); setTime.setMilliseconds(1000)}
+            if(setTime){setTime.setSeconds(0); setTime.setMilliseconds(0)}
             let d = setTime || new Date();
             let mPercent = 0;
             let aPercent = 0;
-            if(d > dates.morningStart && d < dates.morningEnd){
+            if(d >= dates.morningStart && d <= dates.morningEnd){
                 mPercent = Math.abs(dates.morningStart - d) / Math.abs(dates.morningEnd - dates.morningStart);
             }else{
                 mPercent = 1;
             }
-            if(d > dates.afternoonStart && d < dates.afternoonEnd){
+            if(d >= dates.afternoonStart && d <= dates.afternoonEnd){
                 aPercent = Math.abs(dates.afternoonStart - d) / Math.abs(dates.afternoonEnd - dates.afternoonStart);
             }
             let mt = settings.morningGoalTasks * mPercent;
@@ -70,6 +74,7 @@
         d.setHours(parseInt(hour));
         d.setMinutes(parseInt(minute));
         d.setSeconds(0);
+        d.setMilliseconds(0);
 
         return d;
     }
@@ -192,9 +197,16 @@
         let milestones = Array.from(document.getElementsByClassName('milestone'));
         for(let t = 0; t <= 3; t++){
             let nextT = new Date().setMinutes(new Date().getMinutes() + minutesTo + (30 * t));
+            nextT = new Date(nextT).setSeconds(0);
+            nextT = new Date(nextT).setMilliseconds(0);
             let nextD = settings.currentTime(new Date(new Date().setMinutes(new Date().getMinutes() + minutesTo + (30 * t))));
             let nextTask = settings.currentTasks(new Date(new Date().setMinutes(new Date().getMinutes() + minutesTo + (30 * t))));
-            milestones[t].innerHTML = new Date(nextT).getHours() + ':' + leadingZero(new Date(nextT).getMinutes()) + ' : ' + nextD + ' ' + nextTask;
+            if(nextT <= dates.afternoonEnd.getTime()){
+                milestones[t].style.display = 'block';
+                milestones[t].innerHTML = new Date(nextT).getHours() + ':' + leadingZero(new Date(nextT).getMinutes()) + ' : ' + nextD + ' ' + nextTask;
+            }else{
+                milestones[t].style.display = 'none';
+            }
         }
     }
 
