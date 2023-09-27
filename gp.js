@@ -16,14 +16,11 @@
         settings.lunchTime = localStorage.getItem('lunchTime') || '00:00';
         settings.lunchDuration = localStorage.getItem('lunchDuration') || 0;
         settings.milestone = localStorage.getItem('milestone') || "true";
+        settings.perHour = localStorage.getItem('perHourCheck') || "true";
         settings.milestoneFrequency = localStorage.getItem('milestoneFrequency') || 30;
 
         dates.morningStart = setDate(settings.startTime.split(':')[0], settings.startTime.split(':')[1]);
-        if(parseInt((settings.lunchTime.split(':')[0] * 60) + parseInt(settings.lunchTime.split(':')[1]) <= settings.endTime.split(':')[0] * 60) + parseInt(settings.endTime.split(':')[1])){
-            dates.morningEnd = setDate(settings.lunchTime.split(':')[0], settings.lunchTime.split(':')[1]);
-        }else{
-            dates.morningEnd = setDate(settings.endTime.split(':')[0], settings.endTime.split(':')[1]);
-        }
+        dates.morningEnd = setDate(settings.lunchTime.split(':')[0], settings.lunchTime.split(':')[1]);
         dates.afternoonStart = setDate(settings.lunchTime.split(':')[0], parseInt(settings.lunchTime.split(':')[1]) + parseInt(settings.lunchDuration));
         dates.afternoonEnd = setDate(settings.endTime.split(':')[0], settings.endTime.split(':')[1]);
 
@@ -136,6 +133,17 @@
     document.getElementById('milestoneCheck').checked = settings.milestone === 'true' ? true : false;
     document.getElementById('milestoneCheck').dispatchEvent(new Event('change'));
 
+    document.getElementById('perHourCheck').addEventListener('change', ev=>{
+        localStorage.setItem('perHourCheck', ev.target.checked === true ? 'true' : 'false');
+        settings.perHour = localStorage.getItem('perHourCheck');
+        Array.from(document.getElementsByClassName('perHour')).forEach(el=>{
+            el.style.display = localStorage.getItem('perHourCheck') === 'false' ? 'none' : 'block';
+        });
+    });
+
+    document.getElementById('perHourCheck').checked = settings.perHour === 'true' ? true : false;
+    document.getElementById('perHourCheck').dispatchEvent(new Event('change'));
+
     //Updates all calculation if the inputs are changed.
     let inputs = document.querySelectorAll('input[type="time"], input[type="number"]');
     inputs.forEach(el=>{ //iterating all the inputs
@@ -188,7 +196,15 @@
                 document.getElementById('lunch').style.display = 'none';
             }
             updateMilestone();
+            updatePerHour();
         }
+    }
+
+    function updatePerHour(){
+        let fullTime = ((Math.abs(dates.morningEnd - dates.morningStart) / 1000) + (Math.abs(dates.afternoonEnd - dates.afternoonStart) / 1000));
+        let goalTime = (settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60);
+        document.getElementById('goalTimePerHour').innerHTML = `${(goalTime / fullTime) * 60}m/h`;
+        document.getElementById('goalTasksPerHour').innerHTML = `${settings.goalTasks / (fullTime / 3600)}tasks/h`;
     }
 
     function updateMilestone(){

@@ -250,6 +250,7 @@ input[type="checkbox"]{
     appearance: none;
     border-radius: 3rem;
     cursor: pointer;
+    margin-right: 1rem;
 }
 
 input[type="checkbox"]:not(:checked):before {
@@ -275,4 +276,11 @@ input[type="checkbox"]:checked::before{
     background-color: green;
     width: 1.2rem;
     aspect-ratio: 1/1;
+}
+
+.perHour {
+    position: absolute;
+    bottom: -3rem;
+    left: 50%;
+    transform: translateX(-50%);
 }

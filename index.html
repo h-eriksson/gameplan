@@ -138,6 +138,7 @@
                 <span id="timeInput" class="navInput">
                     <input type="time" name="goalTime" id="goalTime" pattern="[0-9]{2}:[0-9]{2}">
                 </span>
+                <span id="goalTimePerHour" class="perHour">40m/h</span>
                 <span class="tooltip">
                     <span class="tooltip-header">Goal time</span><br>
                     This is the time aimed for.
@@ -185,11 +186,13 @@
                 <span id="tasksInput" class="navInput">
                     <input type="number" name="goalTasks" id="goalTasks">
                 </span>
+                <span id="goalTasksPerHour" class="perHour">220tasks/h</span>
                 <span class="tooltip">
                     <span class="tooltip-header">Goal tasks</span><br>
                     This is the amount of tasks aimed for within the timespan.
                 </span>
             </div>
+
             <div id="darkMode" class="navItem">
                 <span class="icon-darkMode icon" tabindex="0">
                     <svg
@@ -240,6 +243,7 @@
             <ul>
                 <li><input type="checkbox" name="darkModeCheck" id="darkModeCheck"><label for="darkModeCheck">Dark Mode</label></li>
                 <li><input type="checkbox" name="milestoneCheck" id="milestoneCheck"><label for="milestoneCheck">Milestones</label></li>
+                <li><input type="checkbox" name="perHourCheck" id="perHourCheck"><label for="perHourCheck">Show per hour</label></li>
             </ul>
         </div>
 
