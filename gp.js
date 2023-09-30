@@ -88,8 +88,8 @@
     })
 
     //Getting and setting up darkMode.
-    document.getElementById('darkModeCheck').checked = localStorage.getItem('darkMode') === 'light' ? false : true;
-    document.getElementsByTagName('body')[0].dataset.colorscheme = localStorage.getItem('darkMode'); //Setting darkMode according to localStorage
+    document.getElementById('darkModeCheck').checked = settings.darkMode === 'light' ? false : true;
+    document.getElementsByTagName('body')[0].dataset.colorscheme = settings.darkMode; //Setting darkMode according to localStorage
     let darkModeIcon = document.querySelector('.icon-darkMode');
     ['click', 'keydown'].forEach(el=>{
         darkModeIcon.addEventListener(el, ev=>{
@@ -203,8 +203,8 @@
     function updatePerHour(){
         let fullTime = ((Math.abs(dates.morningEnd - dates.morningStart) / 1000) + (Math.abs(dates.afternoonEnd - dates.afternoonStart) / 1000));
         let goalTime = (settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60);
-        document.getElementById('goalTimePerHour').innerHTML = `${(goalTime / fullTime) * 60}m/h`;
-        document.getElementById('goalTasksPerHour').innerHTML = `${settings.goalTasks / (fullTime / 3600)}tasks/h`;
+        document.getElementById('goalTimePerHour').innerHTML = `${Math.round(((goalTime / fullTime) * 60) * 100) / 100}m/h`;
+        document.getElementById('goalTasksPerHour').innerHTML = `${Math.round(settings.goalTasks / (fullTime / 3600) * 100) / 100}tasks/h`;
     }
 
     function updateMilestone(){
