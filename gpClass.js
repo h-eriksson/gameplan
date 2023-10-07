@@ -88,6 +88,9 @@ class GamePlan{
         if(setTime >= this.afternoonStart && setTime <= this.afternoonEnd){
             elapsedAfternoonPercent = Math.abs(setTime - this.afternoonStart) / Math.abs(this.afternoonEnd - this.afternoonStart);
         }
+        if(setTime >= this.afternoonEnd){
+            elapsedAfternoonPercent = 1;
+        }
         return {
             'elapsedMorningPercent': elapsedMorningPercent,
             'elapsedAfternoonPercent' : elapsedAfternoonPercent
