@@ -3,80 +3,47 @@
     'use strict'
     
     let tooltipTimeOut;
-    let counterTimeOut;
-    let settings = {};
-    let dates = {};
+    let gp = new GamePlan();
+    gp.updateTime();
 
-    function updateSettings(){
-        settings.startTime = localStorage.getItem('startTime') || '00:00';
-        settings.endTime = localStorage.getItem('endTime') || '00:00';
-        settings.goalTime = localStorage.getItem('goalTime') || '00:00';
-        settings.goalTasks = localStorage.getItem('goalTasks') || 0;
-        settings.darkMode = localStorage.getItem('darkMode') || (window.matchMedia("(prefers-color-scheme:light)").matches ? 'light' : 'dark');
-        settings.lunchTime = localStorage.getItem('lunchTime') || '00:00';
-        settings.lunchDuration = localStorage.getItem('lunchDuration') || 0;
-        settings.milestone = localStorage.getItem('milestone') || "true";
-        settings.perHour = localStorage.getItem('perHourCheck') || "true";
-        settings.milestoneFrequency = localStorage.getItem('milestoneFrequency') || 30;
+    gp.milestone = true;
 
-        dates.morningStart = setDate(settings.startTime.split(':')[0], settings.startTime.split(':')[1]);
-        dates.morningEnd = setDate(settings.lunchTime.split(':')[0], settings.lunchTime.split(':')[1]);
-        dates.afternoonStart = setDate(settings.lunchTime.split(':')[0], parseInt(settings.lunchTime.split(':')[1]) + parseInt(settings.lunchDuration));
-        dates.afternoonEnd = setDate(settings.endTime.split(':')[0], settings.endTime.split(':')[1]);
+    let inputs = ['startTime', 'endTime', 'lunchTime', 'lunchDuration', 'goalTime', 'goalTasks'];
 
-        settings.morningPercent = Math.abs(dates.morningEnd - dates.morningStart) / (Math.abs(dates.afternoonEnd - dates.afternoonStart) + Math.abs(dates.morningEnd - dates.morningStart));
-        settings.afternoonPercent = Math.abs(dates.afternoonEnd - dates.afternoonStart) / (Math.abs(dates.afternoonEnd - dates.afternoonStart) + Math.abs(dates.morningEnd - dates.morningStart));
-        settings.morningGoalTasks = settings.goalTasks * settings.morningPercent;
-        settings.afternoonGoalTasks = settings.goalTasks * settings.afternoonPercent;
-        settings.morningGoalTime = ((settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60)) * settings.morningPercent;
-        settings.afternoonGoalTime = ((settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60)) * settings.afternoonPercent;
-        settings.currentTime = (setTime)=>{
-            if(setTime){setTime.setSeconds(0); setTime.setMilliseconds(0)}
-            let d = setTime || new Date();
-            let mPercent = 0;
-            let aPercent = 0;
-            if(d > dates.morningStart && d < dates.morningEnd){
-                mPercent = Math.abs(dates.morningStart - d) / Math.abs(dates.morningEnd - dates.morningStart);
-            }else{
-                mPercent = 1;
-            }
-            if(d >= dates.afternoonStart && d <= dates.afternoonEnd){
-                aPercent = Math.abs(dates.afternoonStart - d) / Math.abs(dates.afternoonEnd - dates.afternoonStart);
-            }
-            let mh = settings.morningGoalTime * mPercent;
-            let ah = settings.afternoonGoalTime * aPercent;
-            return Math.floor((mh + ah) / 3600) + 'h ' + Math.floor(((mh + ah) % 3600) / 60) + 'm';
-        }
-        settings.currentTasks = (setTime)=>{
-            if(setTime){setTime.setSeconds(0); setTime.setMilliseconds(0)}
-            let d = setTime || new Date();
-            let mPercent = 0;
-            let aPercent = 0;
-            if(d >= dates.morningStart && d <= dates.morningEnd){
-                mPercent = Math.abs(dates.morningStart - d) / Math.abs(dates.morningEnd - dates.morningStart);
-            }else{
-                mPercent = 1;
-            }
-            if(d >= dates.afternoonStart && d <= dates.afternoonEnd){
-                aPercent = Math.abs(dates.afternoonStart - d) / Math.abs(dates.afternoonEnd - dates.afternoonStart);
-            }
-            let mt = settings.morningGoalTasks * mPercent;
-            let at = settings.afternoonGoalTasks * aPercent;
-            return Math.floor(mt + at) + 'tasks';
-        }
+    inputs.forEach(el=>{
+        let element = document.getElementById(el);
+        element.value = gp[el];
+        element.addEventListener('change', ev=>{
+            gp[el] = element.value;
+            init();
+        });
+    });
+
+    function init(){
+        document.getElementById('time').innerHTML = gp.currentLevels(['time']).time.text;
+        document.getElementById('tasks').innerHTML = gp.currentLevels(['task']).task.text;
+        document.getElementById('goalTasksPerHour').innerHTML = `${Math.round(gp.tasksPerHour * 100) / 100}tasks/h`;
+        document.getElementById('goalTimePerHour').innerHTML = `${Math.round(gp.minutesPerHour * 100) / 100}m/h`;
+        let ms = gp.milestones();
+        ms.forEach((el, i)=>{
+            document.getElementById('sidePanel').children[i + 1].innerHTML = el;
+        });
     }
 
-    function setDate(hour, minute){
-        let d = new Date();
-        d.setHours(parseInt(hour));
-        d.setMinutes(parseInt(minute));
-        d.setSeconds(0);
-        d.setMilliseconds(0);
+    window.addEventListener('gp-update-task', ev=>{
+        document.getElementById('tasks').innerHTML = ev.detail.text;
+    });
 
-        return d;
-    }
+    window.addEventListener('gp-update-time', ev=>{
+        document.getElementById('time').innerHTML = ev.detail.text;
+    });
 
-    updateSettings();
+    window.addEventListener('gp-update-milestone', ev=>{
+        let ms = gp.milestones();
+        ms.forEach((el, i)=>{
+            document.getElementById('sidePanel').children[i + 1].innerHTML = el;
+        });
+    });
 
     function setDarkMode(){
         document.getElementsByTagName('body')[0].dataset.colorscheme = document.getElementsByTagName('body')[0].dataset.colorscheme === 'light' ? 'dark' : 'light';
@@ -88,8 +55,8 @@
     })
 
     //Getting and setting up darkMode.
-    document.getElementById('darkModeCheck').checked = settings.darkMode === 'light' ? false : true;
-    document.getElementsByTagName('body')[0].dataset.colorscheme = settings.darkMode; //Setting darkMode according to localStorage
+    document.getElementById('darkModeCheck').checked = localStorage.getItem('darkMode') === 'light' ? false : true;
+    document.getElementsByTagName('body')[0].dataset.colorscheme = localStorage.getItem('darkMode'); //Setting darkMode according to localStorage
     let darkModeIcon = document.querySelector('.icon-darkMode');
     ['click', 'keydown'].forEach(el=>{
         darkModeIcon.addEventListener(el, ev=>{
@@ -126,36 +93,22 @@
 
     document.getElementById('milestoneCheck').addEventListener('change', ev=>{
         localStorage.setItem('milestone', ev.target.checked === true ? 'true' : 'false');
-        settings.milestone = localStorage.getItem('milestone');
         document.getElementById('sidePanel').style.display = localStorage.getItem('milestone') === 'false' ? 'none' : 'block';
     });
 
-    document.getElementById('milestoneCheck').checked = settings.milestone === 'true' ? true : false;
+    document.getElementById('milestoneCheck').checked = localStorage.getItem('milestone') === 'true' ? true : false;
     document.getElementById('milestoneCheck').dispatchEvent(new Event('change'));
 
     document.getElementById('perHourCheck').addEventListener('change', ev=>{
         localStorage.setItem('perHourCheck', ev.target.checked === true ? 'true' : 'false');
-        settings.perHour = localStorage.getItem('perHourCheck');
         Array.from(document.getElementsByClassName('perHour')).forEach(el=>{
             el.style.display = localStorage.getItem('perHourCheck') === 'false' ? 'none' : 'block';
         });
     });
 
-    document.getElementById('perHourCheck').checked = settings.perHour === 'true' ? true : false;
+    document.getElementById('perHourCheck').checked = localStorage.getItem('perHourCheck') === 'true' ? true : false;
     document.getElementById('perHourCheck').dispatchEvent(new Event('change'));
 
-    //Updates all calculation if the inputs are changed.
-    let inputs = document.querySelectorAll('input[type="time"], input[type="number"]');
-    inputs.forEach(el=>{ //iterating all the inputs
-        el.value = settings[el.name]; //Setting all inputs to the stored value or "0"
-        el.addEventListener('change', ev=>{
-            localStorage.setItem(el.name, el.value);
-            updateSettings();
-            updateCounter();
-        })
-    });
-
-    //Making the tooltip appear if icons are hovered, and disappear if not hovered.
     let icons = document.querySelectorAll('.icon');
     icons.forEach(el=>{
         el.addEventListener('mouseover',ev=>{
@@ -172,72 +125,8 @@
         })
     })
 
-    //helper-function. Finds the closest greater number evenly divisible by m.
-    function closestNumber(n, m)
-    {
-        return (n * m) > 0 ? 
-            (m * (parseInt(n / m) + 1)) : 
-            (m * (parseInt(n / m) - 1));
-    }
+    document.getElementById('updated').innerHTML = ' ' + document.lastModified;
 
-    //Starts the interval at an evenly divisible by 5 second time.
-    setTimeout(()=>{
-        counterTimeOut = setInterval(updateCounter, 2500);
-    }, Math.abs(new Date(new Date(new Date().getTime()).setSeconds(closestNumber(new Date(new Date().getTime()).getSeconds(), 5))) - new Date()));
-
-    //Updates the output.
-    function updateCounter(){
-        let currentTimeStamp = new Date();
-        if(currentTimeStamp > dates.morningStart && currentTimeStamp < dates.afternoonEnd){
-            document.getElementById('counter').innerHTML = `${settings.currentTime()}<br>${settings.currentTasks()}`;
-            if(currentTimeStamp >= dates.morningEnd && currentTimeStamp <= dates.afternoonStart){
-                document.getElementById('lunch').style.display = 'block';
-            }else{
-                document.getElementById('lunch').style.display = 'none';
-            }
-            updateMilestone();
-            updatePerHour();
-        }
-    }
-
-    function updatePerHour(){
-        let fullTime = ((Math.abs(dates.morningEnd - dates.morningStart) / 1000) + (Math.abs(dates.afternoonEnd - dates.afternoonStart) / 1000));
-        let goalTime = (settings.goalTime.split(':')[0] * 3600) + (settings.goalTime.split(':')[1] * 60);
-        document.getElementById('goalTimePerHour').innerHTML = `${Math.round(((goalTime / fullTime) * 60) * 100) / 100}m/h`;
-        document.getElementById('goalTasksPerHour').innerHTML = `${Math.round(settings.goalTasks / (fullTime / 3600) * 100) / 100}tasks/h`;
-    }
-
-    function updateMilestone(){
-        let d = new Date();
-        let minutesTo = closestNumber(d.getMinutes(), 30) === 30 ? 30 - d.getMinutes() : 60 - d.getMinutes();
-        let milestones = Array.from(document.getElementsByClassName('milestone'));
-        for(let t = 0; t <= 3; t++){
-            let nextT = new Date().setMinutes(new Date().getMinutes() + minutesTo + (30 * t));
-            nextT = new Date(nextT).setSeconds(0);
-            nextT = new Date(nextT).setMilliseconds(0);
-            let nextD = settings.currentTime(new Date(new Date().setMinutes(new Date().getMinutes() + minutesTo + (30 * t))));
-            let nextTask = settings.currentTasks(new Date(new Date().setMinutes(new Date().getMinutes() + minutesTo + (30 * t))));
-            if(nextT <= dates.afternoonEnd.getTime()){
-                milestones[t].style.display = 'block';
-                milestones[t].innerHTML = new Date(nextT).getHours() + ':' + leadingZero(new Date(nextT).getMinutes()) + ' : ' + nextD + ' ' + nextTask;
-            }else{
-                milestones[t].style.display = 'none';
-            }
-        }
-    }
-
-    updateCounter();
-
-    function leadingZero(n){
-        return parseInt(n) > 10 ? n : '0' + n;
-    }
-
-    //getting the last time this js file was saved.
-    fetch("./gp.js")
-    .then(response => response.blob())
-    .then(blob => {
-        const file = new File([blob], blob.name);
-        document.getElementById('updated').innerHTML = ' ' + new Date(file.lastModified);
-    });
+    init();
 
 }()));
