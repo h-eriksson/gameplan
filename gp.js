@@ -4,7 +4,6 @@
     
     let tooltipTimeOut;
     let gp = new GamePlan();
-    gp.updateTime();
 
     gp.milestone = true;
 
@@ -28,6 +27,7 @@
         ms.forEach((el, i)=>{
             document.getElementById('sidePanel').children[i + 1].innerHTML = el;
         });
+        gp.updateTime();
     }
 
     window.addEventListener('gp-update-task', ev=>{
