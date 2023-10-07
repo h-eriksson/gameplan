@@ -82,11 +82,12 @@ class GamePlan{
         let elapsedAfternoonPercent = 0;
         if(setTime >= this.morningStart && setTime <= this.morningEnd){
             elapsedMorningPercent = Math.abs(setTime - this.morningStart) / Math.abs(this.morningEnd - this.morningStart);   
-        }else{
-            elapsedMorningPercent = 1;
         }
         if(setTime >= this.afternoonStart && setTime <= this.afternoonEnd){
             elapsedAfternoonPercent = Math.abs(setTime - this.afternoonStart) / Math.abs(this.afternoonEnd - this.afternoonStart);
+        }
+        if(setTime >= this.morningEnd){
+            elapsedMorningPercent = 1;
         }
         if(setTime >= this.afternoonEnd){
             elapsedAfternoonPercent = 1;
@@ -171,7 +172,7 @@ class GamePlan{
     #getIntervals(task){
         let levels = this.currentLevels();
         let nextUpdate;
-        let lunchHour = new Date() > new Date(this.#setDate(this.lunchTime.split(':')[0], this.lunchTime.split(':')[1]) + (this.lunchDuration * 60000)) ? parseInt(this.lunchDuration) : lunchHour = 0;
+        let lunchHour = new Date() > new Date(this.#setDate(this.lunchTime.split(':')[0], this.lunchTime.split(':')[1]) + (this.lunchDuration * 60000)) ? parseInt(this.lunchDuration) : 0;
         if(task === 'task'){
             nextUpdate = (lunchHour * 60000) + (this.tpt * 1000) + ((levels.task.value * this.tpt) * 1000) + this.#setDate(this.startTime.split(':')[0], this.startTime.split(':')[1]).getTime();
         }
