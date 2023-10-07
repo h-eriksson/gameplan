@@ -5,6 +5,10 @@
     cursor: pointer;
 }
 
+a {
+    color: var(--text-color);
+}
+
 body[data-colorscheme="purple"] {
     --bg-color: rgba(128, 64, 192, 1); /* Purple background */
     --text-color: rgba(255, 255, 255, 1); /* White text */
