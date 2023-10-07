@@ -7,6 +7,7 @@ Date.prototype.nextHalfHour = function (interval = 0) {
     returnDate.setSeconds(0);
     returnDate.setMilliseconds(0);
     returnDate = returnDate < currentDate ? new Date(returnDate.getTime() + (30 * 60000)) : returnDate;
+    returnDate = returnDate < this ? this : returnDate;
     let d = new Date(returnDate.getTime() + (((30 * interval) * 60000)));
     return d;
 }
