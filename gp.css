@@ -130,7 +130,8 @@ html, body {
 }
 
 .navInput {
-    display: none;
+    position: relative;
+    display: none; 
 }
 
 .navItem:focus-within > .navInput {
@@ -144,6 +145,13 @@ html, body {
     border: 0px;
     outline: none;
     color: var(--text-color);
+}
+
+.inputLabel{
+    position: absolute;
+    top: -0.5rem;
+    left: 0px;
+    color: var(--shadow-color);
 }
 
 .tooltip {

@@ -7,6 +7,10 @@
 
     gp.milestone = true;
 
+    if(localStorage.getItem('darkMode') === null){
+        localStorage.setItem('darkMode', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+
     let inputs = ['startTime', 'endTime', 'lunchTime', 'lunchDuration', 'goalTime', 'goalTasks'];
 
     inputs.forEach(el=>{
