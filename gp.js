@@ -28,9 +28,11 @@
         document.getElementById('goalTasksPerHour').innerHTML = `${Math.round(gp.tasksPerHour * 100) / 100}tasks/h`;
         document.getElementById('goalTimePerHour').innerHTML = `${Math.round(gp.minutesPerHour * 100) / 100}m/h`;
         let ms = gp.milestones();
-        ms.forEach((el, i)=>{
-            document.getElementById('sidePanel').children[i + 1].innerHTML = el;
-        });
+        Array.from(document.getElementById('sidePanel').children).forEach((el, i)=>{
+            if(i !== 0){
+                el.innerHTML = ms[i - 1] || '';
+            }
+        })
         gp.updateTime();
     }
 
