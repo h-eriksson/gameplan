@@ -36,6 +36,11 @@
 
     window.addEventListener('gp-update-task', ev=>{
         document.getElementById('tasks').innerHTML = ev.detail.text;
+        if(gp.lunchTimeAsDate <= new Date() && new Date(gp.lunchTimeAsDate.getTime() + (gp.lunchDuration * 60000)) >= new Date()){
+            document.getElementById('lunch').style.display = 'block';
+        }else{
+            document.getElementById('lunch').style.display = 'none';
+        }
     });
 
     window.addEventListener('gp-update-time', ev=>{

@@ -25,16 +25,19 @@ class GamePlan{
     }
 
     get startTime() { return localStorage.getItem('startTime') || '00:00' }
+    get startTimeAsDate() { return this.#setDate(this.startTime.split(':')[0], this.startTime.split(':')[1]) }
     set startTime(newStartTime) { 
         if(!(this.#hourLimits(newStartTime.split(':')[0]) && this.#minuteLimits(newStartTime.split(':')[1]))){ return }
         localStorage.setItem('startTime', newStartTime) 
     }
     get endTime() { return localStorage.getItem('endTime') || '00:00' }
+    get endTimeAsDate() { return this.#setDate(this.endTime.split(':')[0], this.endTime.split(':')[1]) }
     set endTime(newEndTime) { 
         if(!(this.#hourLimits(newEndTime.split(':')[0]) && this.#minuteLimits(newEndTime.split(':')[1]))){ return }
         localStorage.setItem('endTime', newEndTime) 
     }
     get lunchTime() { return localStorage.getItem('lunchTime') || '00:00' }
+    get lunchTimeAsDate() { return this.#setDate(this.lunchTime.split(':')[0], this.lunchTime.split(':')[1]) }
     set lunchTime(newLunchTime) { 
         if(!(this.#hourLimits(newLunchTime.split(':')[0]) && this.#minuteLimits(newLunchTime.split(':')[1]))){ return }
         localStorage.setItem('lunchTime', newLunchTime) 
