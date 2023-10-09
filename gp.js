@@ -23,11 +23,12 @@
     });
 
     function init(){
-        document.getElementById('time').innerHTML = gp.currentLevels(['time']).time.text;
-        document.getElementById('tasks').innerHTML = gp.currentLevels(['task']).task.text;
+        let cl = gp.currentLevels();
+        document.getElementById('time').innerHTML = cl.time.text;
+        document.getElementById('tasks').innerHTML = cl.task.text;
         document.getElementById('goalTasksPerHour').innerHTML = `${Math.round(gp.tasksPerHour * 100) / 100}tasks/h`;
         document.getElementById('goalTimePerHour').innerHTML = `${Math.round(gp.minutesPerHour * 100) / 100}m/h`;
-        let ms = gp.milestones();
+        let ms = cl.milestone.text;
         Array.from(document.getElementById('sidePanel').children).forEach((el, i)=>{
             if(i !== 0){
                 el.innerHTML = ms[i - 1] || '';
