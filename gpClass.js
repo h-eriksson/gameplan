@@ -172,7 +172,7 @@ class GamePlan{
     #getIntervals(task){
         let levels = this.currentLevels();
         let nextUpdate;
-        let lunchHour = new Date() > new Date(this.setDate(this.lunchTime.split(':')[0], this.lunchTime.split(':')[1]) + (this.lunchDuration * 60000)) ? parseInt(this.lunchDuration) : 0;
+        let lunchHour = new Date() > new Date(new Date(this.setDate(this.lunchTime.split(':')[0], this.lunchTime.split(':')[1]).setTime() + (this.lunchDuration * 60000))) ? parseInt(this.lunchDuration) : 0;
         if(task === 'task'){
             nextUpdate = (lunchHour * 60000) + (this.tpt * 1000) + ((levels.task.value * this.tpt) * 1000) + this.setDate(this.startTime.split(':')[0], this.startTime.split(':')[1]).getTime();
         }
