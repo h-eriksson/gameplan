@@ -38,6 +38,7 @@ class GamePlan{
         if(!(this.hourLimits(newLunchTime.split(':')[0]) && this.minuteLimits(newLunchTime.split(':')[1]))){ return }
         localStorage.setItem('lunchTime', newLunchTime) 
     }
+    get lunchEndAsDate() { return new Date(this.setDate(this.lunchTime.split(':')[0], this.lunchTime.split(':')[1]).getTime()  + (this.lunchDuration * 60000)) }
     get lunchDuration() { return localStorage.getItem('lunchDuration') || 0 }
     set lunchDuration(newLunchDuration) { 
         if(this.lunchDurationLimit > 0 && newLunchDuration >= this.lunchDurationLimit) { return }
@@ -172,7 +173,7 @@ class GamePlan{
     #getIntervals(task){
         let levels = this.currentLevels();
         let nextUpdate;
-        let lunchHour = new Date() > new Date(new Date(this.setDate(this.lunchTime.split(':')[0], this.lunchTime.split(':')[1]).setTime() + (this.lunchDuration * 60000))) ? parseInt(this.lunchDuration) : 0;
+        let lunchHour = new Date() > this.lunchEndAsDate ? parseInt(this.lunchDuration) : 0;
         if(task === 'task'){
             nextUpdate = (lunchHour * 60000) + (this.tpt * 1000) + ((levels.task.value * this.tpt) * 1000) + this.setDate(this.startTime.split(':')[0], this.startTime.split(':')[1]).getTime();
         }
