@@ -175,13 +175,16 @@ class GamePlan{
         let nextUpdate;
         let lunchHour = new Date() > this.lunchEndAsDate ? parseInt(this.lunchDuration) : 0;
         if(task === 'task'){
-            nextUpdate = (lunchHour * 60000) + (this.tpt * 1000) + ((levels.task.value * this.tpt) * 1000) + this.setDate(this.startTime.split(':')[0], this.startTime.split(':')[1]).getTime();
+            nextUpdate = (lunchHour * 60000) + (this.tpt * 1000) + ((levels.task.value * this.tpt) * 1000) + this.startTimeAsDate.getTime();
         }
         if(task === 'time'){
-            nextUpdate = (lunchHour * 60000) + (this.tpgt * 60000) + ((parseInt(levels.time.value / 60) * this.tpgt) * 60000) + (this.setDate(this.startTime.split(':')[0], this.startTime.split(':')[1]).getTime());
+            nextUpdate = (lunchHour * 60000) + (this.tpgt * 60000) + ((parseInt(levels.time.value / 60) * this.tpgt) * 60000) + (this.startTimeAsDate.getTime());
         }
         if(task === 'milestone'){
-            nextUpdate = this.setDate(this.startTime.split(':')[0], this.startTime.split(':')[1]).nextHalfHour().getTime();
+            nextUpdate = this.startTimeAsDate.nextHalfHour().getTime();
+        }
+        if(new Date() > this.lunchTimeAsDate && new Date() < this.lunchEndAsDate){
+            nextUpdate = (this.lunchEndAsDate.getTime() + 1);
         }
         return Math.abs(nextUpdate - new Date().getTime());
     }
